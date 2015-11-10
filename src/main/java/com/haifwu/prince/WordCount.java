@@ -2,7 +2,9 @@ package com.haifwu.prince;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -23,11 +25,26 @@ public class WordCount {
         private Text word = new Text();
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            StringTokenizer itr = new StringTokenizer(value.toString());
+            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'¡£");
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());
                 context.write(word, one);
             }
+        }
+    }
+
+    public static class SortMapper extends  Mapper<Object, Text, Text, Text>{
+        private Text sortKey = new Text();
+
+        @Override
+        protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String sortKeyValue = "";
+            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'¡£");
+            while (itr.hasMoreTokens()) {
+                sortKeyValue = itr.nextToken() + sortKeyValue;
+            }
+            sortKey.set(sortKeyValue);
+            context.write(sortKey, value);
         }
     }
 
@@ -43,6 +60,35 @@ public class WordCount {
             }
             result.set(sum);
             context.write(key, result);
+        }
+    }
+
+    public static class SortReducer extends Reducer<Text, Text, Text, Text>{
+
+        @Override
+        protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            for(Text val : values){
+                context.write(val, new Text(""));
+            }
+        }
+    }
+
+    private static class ReverseCompare implements RawComparator<Text> {
+        private static final Text.Comparator TEXT_COMPARATOR = new Text.Comparator();
+        @Override
+        public int compare(Text o1, Text o2) {
+            return (-1)*o1.compareTo(o2);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return false;
+        }
+
+        @Override
+        public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+            return (-1)* TEXT_COMPARATOR
+                    .compare(b1, s1, l1, b2, s2, l2);
         }
     }
 
@@ -64,7 +110,21 @@ public class WordCount {
             FileInputFormat.addInputPath(job, new Path(otherArgs[i]));
         }
         FileOutputFormat.setOutputPath(job,
+                new Path("temp"));
+        job.waitForCompletion(true);
+
+        Configuration conf2 = new Configuration();
+
+        Job job2 = new Job(conf2, "sorted result");
+        job2.setJarByClass(WordCount.class);
+        job2.setMapperClass(SortMapper.class);
+        job2.setReducerClass(SortReducer.class);
+        job2.setOutputKeyClass(Text.class);
+        job2.setSortComparatorClass(ReverseCompare.class);
+        job2.setMapOutputValueClass(Text.class);
+        FileInputFormat.addInputPath(job2, new Path("temp"));
+        FileOutputFormat.setOutputPath(job2,
                 new Path(otherArgs[otherArgs.length - 1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        System.exit(job2.waitForCompletion(true) ? 0 : 1);
     }
 }
