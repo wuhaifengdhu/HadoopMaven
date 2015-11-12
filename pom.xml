@@ -50,7 +50,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.haifwu.prince.WordCount</mainClass>
+                            <mainClass>com.haifwu.prince.RandomTest</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
