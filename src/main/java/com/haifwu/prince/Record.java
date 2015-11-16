@@ -6,9 +6,15 @@ package com.haifwu.prince;
 public class Record {
 
     private String filePath;
-    private String offset;
-    private String length;
+    private long offset;
+    private int length;
 
+
+    public Record(String filePath, long offset, int length) {
+        this.filePath = filePath;
+        this.offset = offset;
+        this.length = length;
+    }
 
     public String getFilePath() {
         return filePath;
@@ -18,30 +24,19 @@ public class Record {
         this.filePath = filePath;
     }
 
-    public Record(String offset, String length) {
-        this.offset = offset;
-        this.length = length;
-    }
-
-    public Record(String filePath, String offset, String length) {
-        this.filePath = filePath;
-        this.offset = offset;
-        this.length = length;
-    }
-
-    public String getOffset() {
+    public long getOffset() {
         return offset;
     }
 
-    public void setOffset(String offset) {
+    public void setOffset(long offset) {
         this.offset = offset;
     }
 
-    public String getLength() {
+    public int getLength() {
         return length;
     }
 
-    public void setLength(String length) {
+    public void setLength(int length) {
         this.length = length;
     }
 

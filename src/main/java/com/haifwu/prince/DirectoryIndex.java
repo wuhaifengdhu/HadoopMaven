@@ -2,7 +2,6 @@ package com.haifwu.prince;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
-import org.apache.hadoop.mapred.JobConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ public class DirectoryIndex {
         try {
             storeIndexToFile(indexStoreFile);
         } catch (IOException e) {
-            LOG.debug("Failed when store index to file {}", indexStoreFile);
+            throw new RuntimeException(e);
         }
         return indexList;
     }
@@ -50,8 +49,7 @@ public class DirectoryIndex {
         LOG.info("start store indexes to file", indexStoreFile);
         BufferedWriter writer = null;
         try{
-            JobConf job = new JobConf(new Configuration(), DirectoryIndex.class);
-            FileSystem fs = FileSystem.get(job);
+            FileSystem fs = FileSystem.get(new Configuration());
             FSDataOutputStream outputStream = fs.create(new Path(indexStoreFile));
             writer = new BufferedWriter(new OutputStreamWriter(outputStream));
 
@@ -61,7 +59,7 @@ public class DirectoryIndex {
             }
 
         } catch (IOException e) {
-            LOG.info("File {} create fail", indexStoreFile);
+            throw new RuntimeException(e);
         } finally {
             if(writer != null) writer.close();
         }
@@ -79,20 +77,19 @@ public class DirectoryIndex {
         BufferedReader reader = null;
 
         try{
-            JobConf job = new JobConf(new Configuration(), DirectoryIndex.class);
-            FileSystem fs = FileSystem.get(job);
+            FileSystem fs = FileSystem.get(new Configuration());
             FSDataInputStream inputStream = fs.open(new Path(file));
             String lineRead;
-            int pos = 0;
+            long pos = 0;
 
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
             while((lineRead = reader.readLine())!= null){
-                fileIndexes.add(new Record(file, String.valueOf(pos), String.valueOf(lineRead.length())));
+                fileIndexes.add(new Record(file, pos, lineRead.length()));
                 pos += lineRead.length();
             }
         } catch (IOException e) {
-            LOG.info("File not found for file {}", file);
+            throw new RuntimeException(e);
         } finally {
             if(reader != null) reader.close();
         }
@@ -108,8 +105,7 @@ public class DirectoryIndex {
     private List<String> listFilesUnderDirectory(String directory) {
         List<String> files = new ArrayList<String>();
         try{
-            JobConf job = new JobConf(new Configuration(), DirectoryIndex.class);
-            FileSystem fs = FileSystem.get(job);
+            FileSystem fs = FileSystem.get(new Configuration());
             RemoteIterator<LocatedFileStatus> fileStatusRemoteIterator = fs.listFiles(new Path(directory), true);
 
             while (fileStatusRemoteIterator.hasNext()){
@@ -117,7 +113,7 @@ public class DirectoryIndex {
                 files.add(fileStatus.getPath().toString());
             }
         } catch (Exception e){
-            LOG.info("File not found");
+            throw new RuntimeException(e);
         }
         return files;
     }
