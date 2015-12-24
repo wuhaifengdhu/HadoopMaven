@@ -1,19 +1,18 @@
 package com.haifwu.prince;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
-
-import java.io.IOException;
-import java.util.StringTokenizer;
 
 /**
  * Created by haifwu on 2015/11/6.
@@ -25,7 +24,7 @@ public class WordCount {
         private Text word = new Text();
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'¡£");
+            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'ï¿½ï¿½");
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());
                 context.write(word, one);
@@ -39,7 +38,7 @@ public class WordCount {
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String sortKeyValue = "";
-            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'¡£");
+            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'ï¿½ï¿½");
             while (itr.hasMoreTokens()) {
                 sortKeyValue = itr.nextToken() + sortKeyValue;
             }
