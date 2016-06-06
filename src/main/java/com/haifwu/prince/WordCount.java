@@ -98,7 +98,7 @@ public class WordCount {
             System.err.println("Usage: wordcount <in> [<in>...] <out>");
             System.exit(2);
         }
-        Job job = new Job(conf, "word count");
+        Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(WordCount.class);
         job.setMapperClass(TokenizerMapper.class);
         job.setCombinerClass(IntSumReducer.class);
@@ -114,7 +114,7 @@ public class WordCount {
 
         Configuration conf2 = new Configuration();
 
-        Job job2 = new Job(conf2, "sorted result");
+        Job job2 = Job.getInstance(conf2, "sorted result");
         job2.setJarByClass(WordCount.class);
         job2.setMapperClass(SortMapper.class);
         job2.setReducerClass(SortReducer.class);

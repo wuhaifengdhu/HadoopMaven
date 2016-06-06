@@ -1,4 +1,4 @@
-package com.haifwu.prince;
+package com.haifwu.util;
 
 public final class Constants {
 
@@ -6,23 +6,23 @@ public final class Constants {
     private Constants() {
     }
 
-    static final String PIPESTR = "|";
+    public static final String PIPESTR = "|";
 
-    static final String INPUT_PATH = "input.path";
+    public static final String INPUT_PATH = "input.path";
 
-    static final String OUTPUT_PATH = "output.path";
+    public static final String OUTPUT_PATH = "output.path";
 
-    static final String TABLE_NAME = "table.name";
+    public static final String TABLE_NAME = "table.name";
 
-    static final String DEFAULT_TABLE_NAME = "SC_IRAS_BREFCP";
+    public static final String DEFAULT_TABLE_NAME = "SC_IRAS_BREFCP";
 
-    static final String HBASE_BATCH_SIZE = "hbase.batch.size";
+    public static final String HBASE_BATCH_SIZE = "hbase.batch.size";
 
-    static final int DEFAULT_HBASE_BATCH_SIZE = 5000;
+    public static final int DEFAULT_HBASE_BATCH_SIZE = 5000;
 
-    static final String MAPRED_MAX_INPUT_SPLIT_SIZE = "mapred.max.input.split.size";
+    public static final String MAPRED_MAX_INPUT_SPLIT_SIZE = "mapred.max.input.split.size";
 
-    static final String MAPRED_TEXTOUTPUTFORMAT_SEPARATOR = "mapred.textoutputformat.separator";
+    public static final String MAPRED_TEXTOUTPUTFORMAT_SEPARATOR = "mapred.textoutputformat.separator";
 
     public static final String MAPRED_TASK_PARTITION = "mapred.task.partition";
 

@@ -26,6 +26,8 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.haifwu.util.Constants;
+
 
 /**
  * @author haifwu
@@ -89,7 +91,7 @@ public class CalculateFileLength {
             return;
         }
         if(fs.exists(outputPath)){
-            fs.delete(outputPath);
+            fs.delete(outputPath, true);
         }
         Path[] paths = FileUtil.stat2Paths(fs.listStatus(inputPath, new PathFilter() {
             @Override
