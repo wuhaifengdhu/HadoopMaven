@@ -45,7 +45,7 @@ public class Performance {
             outKey.set(fileName);
             String line = value.toString();
             if(line.contains("End to call HBase.get")){
-                String usedTime = Common.getLastStringBetween(line, "with", "milliseconds");
+                String usedTime = Common.getLastStringBetween(line, "with", "nanoseconds");
                 String timeStamp = line.substring(0, 19);
                 LOG.info("timeStamp: " + timeStamp);
                 try {
@@ -87,7 +87,7 @@ public class Performance {
                 }
             }
             long tps = end - start > 0 ? count * 1000 / (end - start): count ;
-            outValue.set(tps + Constants.COLUMN_PIPESTR + sla + Constants.COLUMN_PIPESTR + count);
+            outValue.set(tps + Constants.COLUMN_PIPESTR + sla/1000000 + Constants.COLUMN_PIPESTR + count);
             context.write(key, outValue);
         }
     }
