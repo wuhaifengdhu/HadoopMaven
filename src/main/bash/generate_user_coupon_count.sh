@@ -37,7 +37,7 @@ OUTPUT_PATH=""
 # Shell flow
 # --------------------------------------------------------------------------------------------------------------
 
-hadoop jar ${D_HOME}/lib/{JAR_NAME} com.haifwu.prince.ActivityIdEmptyCheck  \
+hadoop jar ${D_HOME}/lib/{JAR_NAME} com.rainyday.ccf.UserCouponCount  \
         -Dline.separator=","  \
         -Dinput.training.data.type="online" \
         -Dinput.path=${INPUT_FILE} \

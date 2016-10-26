@@ -24,6 +24,37 @@ import java.io.IOException;
 public class UserCouponCount {
     private static final Logger LOG = LoggerFactory.getLogger(UserCouponCount.class);
 
+    public static void main(String[] args) throws Exception {
+        long startTime = System.currentTimeMillis();
+        Configuration conf = new Configuration();
+        new GenericOptionsParser(conf, args);
+        Path inputPath = new Path(conf.get(CcfConstants.INPUT_PATH));
+        Path outputPath = new Path(conf.get(CcfConstants.OUTPUT_PATH));
+        FileSystem fs = FileSystem.get(conf);
+        if (fs.exists(outputPath)) {
+            fs.delete(outputPath, true);
+        }
+
+        Job job = Job.getInstance(conf, "UserCouponCount");
+        job.setJarByClass(UserCouponCount.class);
+        job.setMapperClass(UserCouponCount.CountUserMapper.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(IntWritable.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        job.setInputFormatClass(TextInputFormat.class);
+        FileInputFormat.addInputPath(job, inputPath);
+        job.setOutputFormatClass(TextOutputFormat.class);
+        FileOutputFormat.setOutputPath(job, outputPath);
+
+        int code = job.waitForCompletion(true) ? 0 : 1;
+        if (code != 0) {
+            LOG.error("UserCouponCount job running failed!");
+        }
+        LOG.info("UserCouponCount Job running succeeded! Total time: {}ms.", System.currentTimeMillis() - startTime);
+        System.exit(code);
+    }
+
     enum TrainingDataType {
         ONLINE, OFFLINE
     }
@@ -80,13 +111,14 @@ public class UserCouponCount {
         private void WriteOnlineData(String[] records, Context context) throws IOException, InterruptedException {
             if (null == records || records.length != 7) {
                 context.getCounter(RunningCount.RECORD_FORMAT_ERROR).increment(1L);
-                LOG.error("input line: [" + ( null == records ? "" : records.toString() ) + "] records format error!");
+                LOG.error("input line: [" + (null == records ? "" : records.toString()) + "] records format error!");
                 return;
             }
             String userId = records[0];
             String couponId = records[3];
             String date = records[6];
-            if(null != userId && null != couponId && null != date){
+            if (null != userId && null != couponId && null != date && CcfUtils.useCouponWithinDays(records[5],
+                    records[6], 15)) {
                 outKey.set(userId);
                 context.write(outKey, one);
                 context.getCounter(RunningCount.ONLINE_USE_COUPON_COUNT).increment(1L);
@@ -103,13 +135,14 @@ public class UserCouponCount {
         private void WriteOfflineData(String[] records, Context context) throws IOException, InterruptedException {
             if (null == records || records.length != 7) {
                 context.getCounter(RunningCount.RECORD_FORMAT_ERROR).increment(1L);
-                LOG.error("input line: [" + ( null == records ? "" : records.toString() ) + "] records format error!");
+                LOG.error("input line: [" + (null == records ? "" : records.toString()) + "] records format error!");
                 return;
             }
             String userId = records[0];
             String couponId = records[2];
             String date = records[6];
-            if(null != userId && null != couponId && null != date){
+            if (null != userId && null != couponId && null != date && CcfUtils.useCouponWithinDays(records[5],
+                    records[6], 15)) {
                 outKey.set(userId);
                 context.write(outKey, one);
                 context.getCounter(RunningCount.OFFLINE_USE_COUPON_COUNT).increment(1L);
@@ -138,36 +171,5 @@ public class UserCouponCount {
                 cleanup(context);
             }
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        long startTime = System.currentTimeMillis();
-        Configuration conf = new Configuration();
-        new GenericOptionsParser(conf, args);
-        Path inputPath = new Path(conf.get(CcfConstants.INPUT_PATH));
-        Path outputPath = new Path(conf.get(CcfConstants.OUTPUT_PATH));
-        FileSystem fs = FileSystem.get(conf);
-        if (fs.exists(outputPath)) {
-            fs.delete(outputPath, true);
-        }
-
-        Job job = Job.getInstance(conf, "UserCouponCount");
-        job.setJarByClass(UserCouponCount.class);
-        job.setMapperClass(UserCouponCount.CountUserMapper.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(IntWritable.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-        job.setInputFormatClass(TextInputFormat.class);
-        FileInputFormat.addInputPath(job, inputPath);
-        job.setOutputFormatClass(TextOutputFormat.class);
-        FileOutputFormat.setOutputPath(job, outputPath);
-
-        int code = job.waitForCompletion(true) ? 0 : 1;
-        if (code != 0) {
-            LOG.error("UserCouponCount job running failed!");
-        }
-        LOG.info("UserCouponCount Job running succeeded! Total time: {}ms.", System.currentTimeMillis() - startTime);
-        System.exit(code);
     }
 }
