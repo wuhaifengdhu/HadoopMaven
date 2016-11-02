@@ -25,7 +25,7 @@ public class WordCount {
         private Text word = new Text();
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'¡£");
+            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'ï¿½ï¿½");
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());
                 context.write(word, one);
@@ -39,7 +39,7 @@ public class WordCount {
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String sortKeyValue = "";
-            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'¡£");
+            StringTokenizer itr = new StringTokenizer(value.toString(), " \t\n\r\f,.!?\"\'ï¿½ï¿½");
             while (itr.hasMoreTokens()) {
                 sortKeyValue = itr.nextToken() + sortKeyValue;
             }
@@ -99,7 +99,7 @@ public class WordCount {
             System.err.println("Usage: wordcount <in> [<in>...] <out>");
             System.exit(2);
         }
-        Job job = new Job(conf, "word count");
+        Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(WordCount.class);
         job.setMapperClass(TokenizerMapper.class);
         job.setCombinerClass(IntSumReducer.class);
@@ -115,7 +115,7 @@ public class WordCount {
 
         Configuration conf2 = new Configuration();
 
-        Job job2 = new Job(conf2, "sorted result");
+        Job job2 = Job.getInstance(conf2, "sorted result");
         job2.setJarByClass(WordCount.class);
         job2.setMapperClass(SortMapper.class);
         job2.setReducerClass(SortReducer.class);

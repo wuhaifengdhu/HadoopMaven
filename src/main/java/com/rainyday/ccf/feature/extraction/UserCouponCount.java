@@ -1,5 +1,8 @@
-package com.rainyday.ccf;
+package com.rainyday.ccf.feature.extraction;
 
+import com.rainyday.ccf.feature.container.DataType;
+import com.rainyday.ccf.feature.util.CcfConstants;
+import com.rainyday.ccf.feature.util.CcfUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -61,17 +64,17 @@ public class UserCouponCount {
         System.exit(code);
     }
 
-    enum TrainingDataType {
-        ONLINE, OFFLINE
-    }
-
     enum RunningCount {
         RECORD_FORMAT_ERROR, USE_COUPON_COUNT, NOT_USE_COUPON_COUNT, INPUT_PARAMETER_ERROR
     }
 
+    enum OnlineColumn {
+        USER_ID, MERCHANT_ID, COUPON_ID, DISCOUNT_RATE,
+    }
+
     private static class CountUserMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
         private static String lineSeparator;
-        private static TrainingDataType trainingDataType;
+        private static DataType trainingDataType;
         private static Text outKey = new Text();
         private static LongWritable one = new LongWritable(1);
 
@@ -82,10 +85,10 @@ public class UserCouponCount {
             String inputType = conf.get(CcfConstants.INPUT_TRAINING_DATA_TYPE);
             if (null == inputType) {
                 LOG.error(CcfConstants.LOG_PREFIX + "Input training data type not set!");
-            } else if (inputType.equalsIgnoreCase(TrainingDataType.OFFLINE.toString())) {
-                trainingDataType = TrainingDataType.OFFLINE;
-            } else if (inputType.equalsIgnoreCase(TrainingDataType.ONLINE.toString())) {
-                trainingDataType = TrainingDataType.ONLINE;
+            } else if (inputType.equalsIgnoreCase(DataType.OFFLINE.toString())) {
+                trainingDataType = DataType.OFFLINE;
+            } else if (inputType.equalsIgnoreCase(DataType.ONLINE.toString())) {
+                trainingDataType = DataType.ONLINE;
             } else {
                 LOG.error(CcfConstants.LOG_PREFIX + "Input type " + inputType + " are not supported.");
             }

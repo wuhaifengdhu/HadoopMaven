@@ -1,12 +1,9 @@
-package com.rainyday.ccf;
+package com.rainyday.ccf.feature.util;
 
 /**
  * @author haifwu
  */
-public class CcfConstants {
-    // Avoid new
-    private CcfConstants(){
-    }
+public interface CcfConstants {
     public static final String EMPTY_STRING = "";
     public static final String NULL_VALUE="null";
     public static final String LINE_SEPARATOR_KEY = "line.separator";
@@ -15,4 +12,9 @@ public class CcfConstants {
     public static final String INPUT_PATH = "input.path";
     public static final String OUTPUT_PATH = "output.path";
     public static final String LOG_PREFIX = "CCF-LOG-PREFIX:";
+    public static final String COLUMN_SEPARATOR = "|";
+
+    public static final int ACTION_CLICK = 0;
+    public static final int ACTION_BUY = 1;
+    public static final int ACTION_COLLECT = 2;
 }

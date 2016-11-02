@@ -1,4 +1,4 @@
-package com.rainyday.ccf;
+package com.rainyday.ccf.feature.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,24 +6,21 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Class with static method may be used in project.
  *
  * @author haifwu
  */
-public class CcfUtils {
+public final class CcfUtils {
     private static final Logger LOG = LoggerFactory.getLogger(CcfUtils.class);
 
-    public static int diffDays(String receiveDate, String useDate) throws ParseException {
+    public static long dateDiff(String receiveDate, String useDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateFormat.parse(receiveDate));
-        long receiveTime = cal.getTimeInMillis();
-        cal.setTime(dateFormat.parse(useDate));
-        long useTime = cal.getTimeInMillis();
-        long diffDays = (useTime - receiveTime) / (24 * 3600 * 1000);
-        return Integer.parseInt(String.valueOf(diffDays));
+        Date received = dateFormat.parse(receiveDate);
+        Date used = dateFormat.parse(useDate);
+        return dateDiff(received, used);
     }
 
     public static boolean useCouponWithinDays(String receiveDate, String useDate, int maxDiffDays) {
@@ -32,7 +29,7 @@ public class CcfUtils {
             return true;
         } else {
             try {
-                int diffDays = diffDays(receiveDate, useDate);
+                long diffDays = dateDiff(receiveDate, useDate);
                 if (diffDays > 0 && diffDays <= maxDiffDays) {
                     return true;
                 }
@@ -41,5 +38,18 @@ public class CcfUtils {
             }
         }
         return false;
+    }
+
+    public static long dateDiff(Date received, Date used){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(received);
+        long receiveTime = calendar.getTimeInMillis();
+        calendar.setTime(used);
+        long usedTime = calendar.getTimeInMillis();
+        return (usedTime - receiveTime) / (24 * 3600 * 1000);
+    }
+
+    public static boolean dateDiffWithin15Days(Date received, Date used){
+        return dateDiff(received, used) <= 15;
     }
 }
