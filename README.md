@@ -21,3 +21,8 @@ This is a hadoop maven start up project!
 
 6, cat the result
 > hadoop fs -cat output/part-r-00000
+
+
+# Feature extraction notes
+1, For average value feature, we only calculate none zero value.
+2, Action type for Offline data or invalid online data will be -1;

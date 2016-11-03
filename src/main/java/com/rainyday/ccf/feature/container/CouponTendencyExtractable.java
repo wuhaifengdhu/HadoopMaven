@@ -25,7 +25,7 @@ public class CouponTendencyExtractable implements Extractable {
      * @return clicked times
      */
     int getClickedTimes(){
-        return record.isClick() ? 1 : 0;
+        return record.isOnlineClickCouponType() ? 1 : 0;
     }
 
     /**
@@ -33,23 +33,25 @@ public class CouponTendencyExtractable implements Extractable {
      * @return collected times
      */
     int getCollectTimes(){
-        return record.isCollect() ? 1 : 0;
+        return record.isOnlineCollectCouponType() ? 1 : 0;
     }
 
     /**
      *  How many times this coupon being used within 15 days
+     *  Here we focus on offline use coupon, that's what we will predict
      * @return used within 15 days times
      */
     int getUsedWithin15DaysTimes(){
-        return record.useCouponBuyWith15Days() ? 1 : 0;
+        return record.isCouponBeingUsedOfflineWithin15Days() ? 1 : 0;
     }
 
     /**
      *  How many times this coupon being used out of 15 days
+     *  Here we focus on offline use coupon, that's what we will predict
      * @return
      */
     int getUsedOutOf15DaysTimes(){
-        return record.useCouponOutOf15Days() ? 1 : 0;
+        return record.isCouponBeingUsedOfflineOutOf15Days() ? 1 : 0;
     }
 
     /**

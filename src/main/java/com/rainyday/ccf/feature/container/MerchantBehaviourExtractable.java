@@ -41,7 +41,7 @@ public class MerchantBehaviourExtractable implements Extractable{
      * @return used within 15 days times
      */
     int getUsedWithin15DaysTimes(){
-        return record.useCouponBuyWith15Days() ? 1 : 0;
+        return record.isCouponBeingUsedWithin15Days() ? 1 : 0;
     }
 
     /**
@@ -49,7 +49,7 @@ public class MerchantBehaviourExtractable implements Extractable{
      * @return
      */
     int getUsedOutOf15DaysTimes(){
-        return record.useCouponOutOf15Days() ? 1 : 0;
+        return record.isCouponBeingUsedOutOf15Days() ? 1 : 0;
     }
 
     /**

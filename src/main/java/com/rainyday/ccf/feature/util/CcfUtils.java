@@ -40,7 +40,7 @@ public final class CcfUtils {
         return false;
     }
 
-    public static long dateDiff(Date received, Date used){
+    public static long dateDiff(Date received, Date used) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(received);
         long receiveTime = calendar.getTimeInMillis();
@@ -49,7 +49,7 @@ public final class CcfUtils {
         return (usedTime - receiveTime) / (24 * 3600 * 1000);
     }
 
-    public static boolean dateDiffWithin15Days(Date received, Date used){
+    public static boolean dateDiffWithin15Days(Date received, Date used) {
         return dateDiff(received, used) <= 15;
     }
 }
