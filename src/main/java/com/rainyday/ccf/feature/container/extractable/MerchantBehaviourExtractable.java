@@ -1,5 +1,6 @@
-package com.rainyday.ccf.feature.container;
+package com.rainyday.ccf.feature.container.extractable;
 
+import com.rainyday.ccf.feature.container.data.AbstractData;
 import com.rainyday.ccf.feature.util.CcfConstants;
 
 /**
@@ -22,34 +23,38 @@ public class MerchantBehaviourExtractable implements Extractable{
 
     /**
      *  How many times this merchant being clicked.
+     *  Only online type training data has this field
      * @return clicked times
      */
     int getClickedTimes(){
-        return record.isClick() ? 1 : 0;
+        return record.isOnlineClickCouponType() ? 1 : 0;
     }
 
     /**
      *  How many time this merchant being collected by users
+     *  Only online type training data has this field
      * @return collected times
      */
     int getCollectTimes(){
-        return record.isCollect() ? 1 : 0;
+        return record.isOnlineCollectCouponType() ? 1 : 0;
     }
 
     /**
      *  How many times this merchant being used within 15 days
+     *  Here we mainly focus on offline coupon use, which we predict for
      * @return used within 15 days times
      */
     int getUsedWithin15DaysTimes(){
-        return record.isCouponBeingUsedWithin15Days() ? 1 : 0;
+        return record.isCouponBeingUsedOfflineWithin15Days() ? 1 : 0;
     }
 
     /**
      *  How many times this merchant being used out of 15 days
+     *  Here we mainly focus on offline coupon use, which we predict for
      * @return
      */
     int getUsedOutOf15DaysTimes(){
-        return record.isCouponBeingUsedOutOf15Days() ? 1 : 0;
+        return record.isCouponBeingUsedOfflineOutOf15Days() ? 1 : 0;
     }
 
     /**
@@ -62,13 +67,14 @@ public class MerchantBehaviourExtractable implements Extractable{
 
     @Override
     public String getKey() {
-        return record.getMerchantId();
+        return FeatureType.MERCHANT_BEHAVIOUR.toString();
     }
 
     @Override
     public String getValue() {
         StringBuilder builder = new StringBuilder(50);
-        builder.append(getRecordTimes()).append(CcfConstants.COLUMN_SEPARATOR)
+        builder.append(record.getMerchantId()).append(CcfConstants.COLUMN_SEPARATOR)
+                .append(getRecordTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getClickedTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getCollectTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getUsedWithin15DaysTimes()).append(CcfConstants.COLUMN_SEPARATOR)

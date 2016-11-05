@@ -1,4 +1,4 @@
-package com.rainyday.ccf.feature.container;
+package com.rainyday.ccf.feature.container.extractable;
 
 /**
  * Created by haifwu on 2016/11/1.

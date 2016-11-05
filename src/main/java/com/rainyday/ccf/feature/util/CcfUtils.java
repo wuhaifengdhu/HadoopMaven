@@ -15,15 +15,15 @@ import java.util.Date;
  */
 public final class CcfUtils {
     private static final Logger LOG = LoggerFactory.getLogger(CcfUtils.class);
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat(CcfConstants.DEFAULT_DATE_FORMAT);
 
     public static long dateDiff(String receiveDate, String useDate) throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         Date received = dateFormat.parse(receiveDate);
         Date used = dateFormat.parse(useDate);
         return dateDiff(received, used);
     }
 
-    public static boolean useCouponWithinDays(String receiveDate, String useDate, int maxDiffDays) {
+    public static boolean dateDiffWithinDays(String receiveDate, String useDate, int maxDiffDays) {
         // situation 1, user use
         if (CcfConstants.NULL_VALUE.equalsIgnoreCase(receiveDate) && null != useDate) {
             return true;
@@ -51,5 +51,42 @@ public final class CcfUtils {
 
     public static boolean dateDiffWithin15Days(Date received, Date used) {
         return dateDiff(received, used) <= 15;
+    }
+
+    public static boolean isNullValue(Object value) {
+        return null == value || CcfConstants.NULL_VALUE.equals(value.toString());
+    }
+
+    public static int getIntValue(String value) {
+        if (isNullValue(value)) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException ignore) {
+            LOG.error("Invalid value convert to int: " + value);
+            return 0;
+        }
+    }
+
+    public static Date getDateValue(String value) {
+        try {
+            return dateFormat.parse(value);
+        } catch (ParseException ignore) {
+            LOG.error("Invalid value convert to Date: " + value);
+            return null;
+        }
+    }
+
+    public static String[] getRecordInfo(String line, String separator, int validFieldNum) {
+        if (null == line || null == separator) {
+            LOG.error("Call getRecordInfo method with invalid input parameters<" + line + ", " + separator + ", " + validFieldNum);
+            return null;
+        }
+        String[] info = line.split(separator);
+        if (info.length != validFieldNum) {
+            return null;
+        }
+        return info;
     }
 }

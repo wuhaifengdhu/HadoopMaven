@@ -1,15 +1,29 @@
-package com.rainyday.ccf.feature.container;
+package com.rainyday.ccf.feature.container.extractable;
 
+import com.rainyday.ccf.feature.container.data.AbstractData;
 import com.rainyday.ccf.feature.util.CcfConstants;
+import com.rainyday.ccf.feature.util.CcfUtils;
 
 /**
  * @author haifwu
  */
-public class CouponTendencyExtractable implements Extractable {
+public class CouponTendencyExtractable implements Extractable, Computable {
     private AbstractData record;
+    private int totalComputeItemsNum;
+
+    private int recordTimes;
+    private int clickTimes;
+    private int collectionTimes;
+    private int usedWithin15DaysTimes;
+    private int usedOutOf15DaysTimes;
+    private float averageDiscountRate;
 
     public CouponTendencyExtractable(AbstractData data){
         this.record = data;
+    }
+
+    public CouponTendencyExtractable(int num){
+        this.totalComputeItemsNum = num;
     }
 
     /**
@@ -62,20 +76,52 @@ public class CouponTendencyExtractable implements Extractable {
         return record.getDiscountRate();
     }
 
+    /**
+     * TODO for coupon id is 'null', we should ignore when we statistic
+     * @return coupon id
+     */
     @Override
     public String getKey() {
-        return record.getCouponId();
+        return FeatureType.COUPON_TENDENCY.toString();
     }
 
     @Override
     public String getValue() {
         StringBuilder builder = new StringBuilder(50);
-        builder.append(getRecordTimes()).append(CcfConstants.COLUMN_SEPARATOR)
+        builder.append(record.getCouponId()).append(CcfConstants.ACTION_COLLECT)
+                .append(getRecordTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getClickedTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getCollectTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getUsedWithin15DaysTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getUsedOutOf15DaysTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getAverageDiscountRate());
         return builder.toString();
+    }
+
+
+
+    @Override
+    public void reset() {
+        this.recordTimes = 0;
+        this.clickTimes = 0;
+        this.collectionTimes = 0;
+        this.usedWithin15DaysTimes = 0;
+        this.usedOutOf15DaysTimes = 0;
+        this.averageDiscountRate = 0;
+    }
+
+    @Override
+    public void add(String line) {
+        String[] info = CcfUtils.getRecordInfo(line, CcfConstants.COLUMN_SEPARATOR, 7);
+    }
+
+    @Override
+    public void compute() {
+
+    }
+
+    @Override
+    public String getComputeResult() {
+        return null;
     }
 }

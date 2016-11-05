@@ -1,26 +1,19 @@
 #!/bin/bash
 #
-# Copyright (c) 2016 HAIFENG WU. All rights reserved.
-#
+# Copyright (c) 2016 PayPal Corporation. All rights reserved.
+
 # --------------------------------------------------------------------------------------------------------------
 #
 #
-#   Author: wuhaifengdhu@163.com
+#   Author: haifwu@paypal.com
 #
 # --------------------------------------------------------------------------------------------------------------
 # Environment variable
 # --------------------------------------------------------------------------------------------------------------
 
-source common_header.sh
-
 # --------------------------------------------------------------------------------------------------------------
 # Configuration
 # --------------------------------------------------------------------------------------------------------------
-
-INPUT_FILE="CCF/ccf_online_stage1_train.csv"
-OUTPUT_PATH="ccf/online"
-# Two Option: online, offline
-INPUT_DATA_TYPE="online"
 
 # --------------------------------------------------------------------------------------------------------------
 # Functions
@@ -29,16 +22,14 @@ INPUT_DATA_TYPE="online"
 # --------------------------------------------------------------------------------------------------------------
 # Shell flow
 # --------------------------------------------------------------------------------------------------------------
+BASH_HOME=$(cd `dirname $0`; pwd)
+echo "BASH HOME is ${BASH_HOME}"
+D_HOME=${BASH_HOME%/*}
+echo "Directory HOME is ${D_HOME}"
 
-hadoop jar ${D_HOME}/lib/${JAR_NAME} com.rainyday.ccf.UserCouponCount  \
-        -Dline.separator=","  \
-        -Dinput.training.data.type=${INPUT_DATA_TYPE} \
-        -Dinput.path=${INPUT_FILE} \
-        -Doutput.path=${OUTPUT_PATH} \
-        -Dmapred.job.queue.name=risk_platform
+CLASSPATH=`find ${D_HOME}/lib -name "*.jar" | xargs | sed 's/ /:/g'`
+LIBJARS=`find ${D_HOME}/lib -name "*.jar" | xargs | sed 's/ /,/g'`
 
-if [ $? == 0 ]; then
-    echo "Job running successfully! You can find your output at ${OUTPUT_PATH}"
-else
-    echo "Job running failed! Please check your configure!"
-fi
+export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$CLASSPATH:${D_HOME}/conf
+
+JAR_NAME="bigdata-1.0-SNAPSHOT.jar"

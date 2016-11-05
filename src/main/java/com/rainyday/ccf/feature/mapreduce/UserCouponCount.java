@@ -1,6 +1,6 @@
-package com.rainyday.ccf.feature.extraction;
+package com.rainyday.ccf.feature.mapreduce;
 
-import com.rainyday.ccf.feature.container.DataType;
+import com.rainyday.ccf.feature.container.data.DataType;
 import com.rainyday.ccf.feature.util.CcfConstants;
 import com.rainyday.ccf.feature.util.CcfUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -127,7 +127,7 @@ public class UserCouponCount {
             String couponId = records[3];
             String date = records[6];
             if (!CcfConstants.NULL_VALUE.equalsIgnoreCase(userId) && !CcfConstants.NULL_VALUE.equalsIgnoreCase(couponId)
-                    && !CcfConstants.NULL_VALUE.equalsIgnoreCase(date) && CcfUtils.useCouponWithinDays(records[5],
+                    && !CcfConstants.NULL_VALUE.equalsIgnoreCase(date) && CcfUtils.dateDiffWithinDays(records[5],
                     records[6], 15)) {
                 outKey.set(userId);
                 context.write(outKey, one);
@@ -152,7 +152,7 @@ public class UserCouponCount {
             String couponId = records[2];
             String date = records[6];
             if (!CcfConstants.NULL_VALUE.equalsIgnoreCase(userId) && !CcfConstants.NULL_VALUE.equalsIgnoreCase(couponId)
-                    && !CcfConstants.NULL_VALUE.equalsIgnoreCase(date) && CcfUtils.useCouponWithinDays(records[5],
+                    && !CcfConstants.NULL_VALUE.equalsIgnoreCase(date) && CcfUtils.dateDiffWithinDays(records[5],
                     records[6], 15)) {
                 outKey.set(userId);
                 context.write(outKey, one);
