@@ -6,7 +6,7 @@ import com.rainyday.ccf.feature.util.CcfConstants;
 /**
  * Created by haifwu on 2016/11/1.
  */
-public class UserBehaviourExtractable implements Extractable {
+public class UserBehaviourExtractable implements Extractable, Computable {
     private AbstractData record;
 
     public UserBehaviourExtractable(AbstractData data) {
@@ -155,4 +155,27 @@ public class UserBehaviourExtractable implements Extractable {
                 .append(getOnlineCouponBuyOutOf15DaysTimes());
         return builder.toString();
     }
+    
+    private int offlineDirectBuyWithoutCouponTimes;
+    private int offlineDirectBuyHaveCouponTimes;
+
+    @Override
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void add(String line) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public String getComputeResult() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    
 }

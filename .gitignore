@@ -2,3 +2,6 @@
 *.iml
 target/
 ccf.log
+.classpath
+.project
+.settings/

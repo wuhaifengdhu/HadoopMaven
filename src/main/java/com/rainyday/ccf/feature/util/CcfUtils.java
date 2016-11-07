@@ -84,13 +84,13 @@ public final class CcfUtils {
 
     public static float getFloatValue(String value){
         if (isNullValue(value)) {
-            return 0;
+            return -1;
         }
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException ignore) {
             LOG.error("Invalid value convert to float: " + value);
-            return 0;
+            return -1;
         }
     }
 
