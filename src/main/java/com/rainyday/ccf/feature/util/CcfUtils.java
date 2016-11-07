@@ -1,5 +1,6 @@
 package com.rainyday.ccf.feature.util;
 
+import com.rainyday.ccf.feature.container.extractable.FeatureType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,11 +71,26 @@ public final class CcfUtils {
     }
 
     public static Date getDateValue(String value) {
+        if(isNullValue(value)){
+            return null;
+        }
         try {
             return dateFormat.parse(value);
         } catch (ParseException ignore) {
             LOG.error("Invalid value convert to Date: " + value);
             return null;
+        }
+    }
+
+    public static float getFloatValue(String value){
+        if (isNullValue(value)) {
+            return 0;
+        }
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException ignore) {
+            LOG.error("Invalid value convert to float: " + value);
+            return 0;
         }
     }
 
@@ -88,5 +104,21 @@ public final class CcfUtils {
             return null;
         }
         return info;
+    }
+
+    public static String getNoNullString(Object object){
+        return null == object ? CcfConstants.EMPTY_STRING : object.toString();
+    }
+
+    public static FeatureType getFeatureTypeFromString(String type){
+        if(null == type){
+            return null;
+        }
+        try {
+            FeatureType featureType = FeatureType.valueOf(type);
+            return featureType;
+        } catch (IllegalArgumentException ignore){
+        }
+        return null;
     }
 }

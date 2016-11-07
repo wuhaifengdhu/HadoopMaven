@@ -9,7 +9,7 @@ import com.rainyday.ccf.feature.util.CcfUtils;
  */
 public class CouponTendencyExtractable implements Extractable, Computable {
     private AbstractData record;
-    private int totalComputeItemsNum;
+    private long validRecordsNum;
 
     private int recordTimes;
     private int clickTimes;
@@ -18,12 +18,12 @@ public class CouponTendencyExtractable implements Extractable, Computable {
     private int usedOutOf15DaysTimes;
     private float averageDiscountRate;
 
+
     public CouponTendencyExtractable(AbstractData data){
         this.record = data;
     }
 
-    public CouponTendencyExtractable(int num){
-        this.totalComputeItemsNum = num;
+    public CouponTendencyExtractable(){
     }
 
     /**
@@ -87,8 +87,11 @@ public class CouponTendencyExtractable implements Extractable, Computable {
 
     @Override
     public String getValue() {
+        if(CcfUtils.isNullValue(record.getCouponId())){
+            return CcfConstants.EMPTY_STRING;
+        }
         StringBuilder builder = new StringBuilder(50);
-        builder.append(record.getCouponId()).append(CcfConstants.ACTION_COLLECT)
+        builder.append(record.getCouponId()).append(CcfConstants.MAP_KEY_INNER_KEY_VALUE_SEPARATOR)
                 .append(getRecordTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getClickedTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getCollectTimes()).append(CcfConstants.COLUMN_SEPARATOR)
@@ -102,6 +105,10 @@ public class CouponTendencyExtractable implements Extractable, Computable {
 
     @Override
     public void reset() {
+        // for calculate
+        this.validRecordsNum = 0;
+
+        // Valid field
         this.recordTimes = 0;
         this.clickTimes = 0;
         this.collectionTimes = 0;
@@ -112,12 +119,11 @@ public class CouponTendencyExtractable implements Extractable, Computable {
 
     @Override
     public void add(String line) {
-        String[] info = CcfUtils.getRecordInfo(line, CcfConstants.COLUMN_SEPARATOR, 7);
-    }
-
-    @Override
-    public void compute() {
-
+        String[] info = CcfUtils.getRecordInfo(line, CcfConstants.COLUMN_SEPARATOR, 6);
+        if(null == info || CcfUtils.isNullValue(info[0])) return;
+        this.recordTimes += CcfUtils.getIntValue(info[0]);
+        this.clickTimes += CcfUtils.getIntValue(info[1]);
+        //TODO complete the code
     }
 
     @Override

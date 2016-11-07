@@ -41,15 +41,12 @@ public class OnlineTrainingData extends AbstractData {
     }
 
     /**
-     * Online Data record: [user_id, merchant_id, coupon_id, action, discount_rate, date_received, date]
+     * Online Data record: [user_id, merchant_id, action, coupon_id, discount_rate, date_received, date]
      *
      * @return AbstractData being build, null if build failure
      */
     @Override
     public AbstractData build() {
-        if(not(inputValidCheck())){
-            return null;
-        }
         String[] info = CcfUtils.getRecordInfo(this.record, this.separator, 7);
         if (null == info) {
             return null;
@@ -57,11 +54,16 @@ public class OnlineTrainingData extends AbstractData {
         // set value for each column
         this.userId = info[0];
         this.merchantId = info[1];
-        this.couponId = info[2];
-        this.actionType = convertToActionType(info[3]);
+        this.actionType = convertToActionType(info[2]);
+        this.couponId = info[3];
         this.discountStr = info[4];
         this.dateReceived = CcfUtils.getDateValue(info[5]);
         this.dateUsed = CcfUtils.getDateValue(info[6]);
+
+        // data valid check
+        if(not(inputValidCheck())){
+            return null;
+        }
         return this;
     }
 

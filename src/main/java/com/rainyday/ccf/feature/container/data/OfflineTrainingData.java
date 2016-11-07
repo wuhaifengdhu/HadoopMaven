@@ -47,9 +47,6 @@ public class OfflineTrainingData extends AbstractData{
      */
     @Override
     public AbstractData build() {
-        if(not(inputValidCheck())){
-            return null;
-        }
         String[] info = CcfUtils.getRecordInfo(this.record, this.separator, 7);
         if(null == info){
             return null;
@@ -62,6 +59,11 @@ public class OfflineTrainingData extends AbstractData{
         this.distance = CcfUtils.getIntValue(info[4]);
         this.dateReceived = CcfUtils.getDateValue(info[5]);
         this.dateUsed = CcfUtils.getDateValue(info[6]);
+
+        // data valid check
+        if(not(inputValidCheck())){
+            return null;
+        }
         return this;
     }
 }

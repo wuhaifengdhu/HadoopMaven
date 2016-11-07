@@ -6,6 +6,5 @@ package com.rainyday.ccf.feature.container.extractable;
 public interface Computable {
      void reset();
      void add(String line);
-     void compute();
      String getComputeResult();
 }

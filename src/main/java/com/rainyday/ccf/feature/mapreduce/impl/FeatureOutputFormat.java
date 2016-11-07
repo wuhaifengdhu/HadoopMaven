@@ -2,6 +2,7 @@ package com.rainyday.ccf.feature.mapreduce.impl;
 
 import com.rainyday.ccf.feature.container.extractable.FeatureType;
 import com.rainyday.ccf.feature.util.CcfConstants;
+import com.rainyday.ccf.feature.util.CcfUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -33,7 +34,7 @@ public class FeatureOutputFormat<K,V> extends FileOutputFormat<K, V> {
 
         private static final String utf8 = "UTF-8";
         private static final byte[] newline;
-        private static byte[] keyValueSeparator;
+//        private static byte[] keyValueSeparator;
         private final ArrayList<FSDataOutputStream> outputStreams = new ArrayList<FSDataOutputStream>(FeatureType
                 .values().length + 1);
         static {
@@ -48,7 +49,7 @@ public class FeatureOutputFormat<K,V> extends FileOutputFormat<K, V> {
             FileSystem fs = FileSystem.newInstance(conf);
             String outputPath = conf.get(org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.OUTDIR, CcfConstants
                     .EMPTY_STRING);
-            keyValueSeparator = conf.get("mapreduce.output.textoutputformat.separator", "\t").getBytes();
+//            keyValueSeparator = conf.get("mapreduce.output.textoutputformat.separator", "\t").getBytes();
             for(FeatureType type: FeatureType.values()){
                 outputStreams.add(type.ordinal(), fs.create(new Path(outputPath, type.toString())));
             }
@@ -57,9 +58,10 @@ public class FeatureOutputFormat<K,V> extends FileOutputFormat<K, V> {
 
         @Override
         public void write(K key, V value) throws IOException {
-            boolean nullKey = key == null || key instanceof NullWritable;
-            boolean nullValue = value == null || value instanceof NullWritable;
-            if (nullKey && nullValue) {
+            boolean nullKey = key == null || key instanceof NullWritable || CcfUtils.isNullValue(key.toString());
+            boolean nullValue = value == null || value instanceof NullWritable || CcfUtils.isNullValue(value.toString());
+            // Either null key or null value regarded as invalid information
+            if (nullKey || nullValue) {
                 return;
             }
 
@@ -71,15 +73,14 @@ public class FeatureOutputFormat<K,V> extends FileOutputFormat<K, V> {
                 LOG.error("Unidentified key in FeatureWriter, use UNKOWN output");
                 out = outputStreams.get(FeatureType.values().length);
             }
-            if (!nullKey) {
-                writeObject(out, key);
-            }
-            if (!(nullKey || nullValue)) {
-                out.write(keyValueSeparator);
-            }
-            if (!nullValue) {
-                writeObject(out, value);
-            }
+//            Comment following line because we don't need output key
+//            if (!nullKey) {
+//                writeObject(out, key);
+//            }
+//            if (!(nullKey || nullValue)) {
+//                out.write(keyValueSeparator);
+//            }
+            writeObject(out, value);
             out.write(newline);
         }
 

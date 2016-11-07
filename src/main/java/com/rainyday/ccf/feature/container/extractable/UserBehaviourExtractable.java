@@ -139,7 +139,7 @@ public class UserBehaviourExtractable implements Extractable {
     @Override
     public String getValue() {
         StringBuilder builder = new StringBuilder(80);
-        builder.append(record.getUserId()).append(CcfConstants.COLUMN_SEPARATOR)
+        builder.append(record.getUserId()).append(CcfConstants.MAP_KEY_INNER_KEY_VALUE_SEPARATOR)
                 .append(getOfflineDirectBuyWithoutCouponTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getOfflineDirectBuyHaveCouponTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getOfflineCouponBuyWithin15DaysTimes()).append(CcfConstants.COLUMN_SEPARATOR)

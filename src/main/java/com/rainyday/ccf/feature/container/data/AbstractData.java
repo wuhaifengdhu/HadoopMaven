@@ -4,6 +4,8 @@ import com.rainyday.ccf.feature.exception.CcfErrorCode;
 import com.rainyday.ccf.feature.exception.CcfException;
 import com.rainyday.ccf.feature.util.CcfConstants;
 import com.rainyday.ccf.feature.util.CcfUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -17,6 +19,7 @@ import java.util.Date;
  * @author haifwu
  */
 public abstract class AbstractData implements Buildable{
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractData.class);
     /**
      *  record contain this record's whole content
      */
@@ -100,6 +103,7 @@ public abstract class AbstractData implements Buildable{
         String[] xy = rateString.split(CcfConstants.RATE_SEPARATOR);
         if(xy.length != 2){
             // Input format error, return 0
+            LOG.error("Input rate is x:y type, but not right. rateString = " + rateString);
             return 0;
         }
         try{
@@ -185,7 +189,7 @@ public abstract class AbstractData implements Buildable{
     }
 
     public boolean isOnlineCouponBuyOutOf15Days(){
-        return isOnlineBuy() && useCoupon() && hasCoupon() && within15Days();
+        return isOnlineBuy() && useCoupon() && hasCoupon() && not(within15Days());
     }
 
     /**
@@ -223,27 +227,27 @@ public abstract class AbstractData implements Buildable{
         return CcfUtils.dateDiffWithin15Days(dateReceived, dateUsed);
     }
 
-    public boolean isActionCollect() {
+    private boolean isActionCollect() {
         return getActionType() == CcfConstants.ACTION_COLLECT;
     }
 
-    public boolean isActionClick() {
+    private boolean isActionClick() {
         return getActionType() == CcfConstants.ACTION_CLICK;
     }
 
-    public boolean isActionBuy() {
+    private boolean isActionBuy() {
         return getActionType() == CcfConstants.ACTION_BUY;
     }
 
-    public boolean isOnlineBuy() {
+    private boolean isOnlineBuy() {
         return isOnlineType() && isActionBuy();
     }
 
-    public boolean isOfflineBuy() {
+    private boolean isOfflineBuy() {
         return isOfflineType();
     }
 
-    protected boolean not(boolean value){
+    boolean not(boolean value){
         return ! value;
     }
 
@@ -266,9 +270,10 @@ public abstract class AbstractData implements Buildable{
     /**
      * Method Area 5: Data valid check
      */
-    public boolean inputValidCheck(){
+    boolean inputValidCheck(){
          if( CcfUtils.isNullValue(this.record) || CcfUtils.isNullValue(this.userId) || CcfUtils.isNullValue(this
                  .merchantId) ){
+             LOG.debug("invalid input:" + this.record);
              return false;
          }
          return true;

@@ -73,7 +73,7 @@ public class MerchantBehaviourExtractable implements Extractable{
     @Override
     public String getValue() {
         StringBuilder builder = new StringBuilder(50);
-        builder.append(record.getMerchantId()).append(CcfConstants.COLUMN_SEPARATOR)
+        builder.append(record.getMerchantId()).append(CcfConstants.MAP_KEY_INNER_KEY_VALUE_SEPARATOR)
                 .append(getRecordTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getClickedTimes()).append(CcfConstants.COLUMN_SEPARATOR)
                 .append(getCollectTimes()).append(CcfConstants.COLUMN_SEPARATOR)

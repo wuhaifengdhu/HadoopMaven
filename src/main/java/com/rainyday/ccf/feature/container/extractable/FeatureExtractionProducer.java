@@ -1,8 +1,7 @@
 package com.rainyday.ccf.feature.container.extractable;
 
 import com.rainyday.ccf.feature.container.data.AbstractData;
-import com.rainyday.ccf.feature.mapreduce.MapReducerFeatureExtractionWorker;
-import com.rainyday.ccf.feature.util.CcfConstants;
+import com.rainyday.ccf.feature.util.CcfUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +44,11 @@ public class FeatureExtractionProducer {
             return new UserBehaviourExtractable(abstractData);
         } else if(FeatureType.MERCHANT_BEHAVIOUR.equals(currentType)){
             return new MerchantBehaviourExtractable(abstractData);
-        } else if(FeatureType.MERCHANT_BEHAVIOUR.equals(currentType)){
+        } else if(FeatureType.COUPON_TENDENCY.equals(currentType)){
             return new CouponTendencyExtractable(abstractData);
         } else {
             //TODO more extractable need added, if more enum being added.
-            LOG.error("Invalid feature type has no extractable!");
+            LOG.error("Invalid feature type has no extractable! current type = "  + CcfUtils.getNoNullString(currentType));
             return null;
         }
     }
