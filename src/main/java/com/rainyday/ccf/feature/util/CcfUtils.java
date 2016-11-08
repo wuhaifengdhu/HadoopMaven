@@ -99,8 +99,10 @@ public final class CcfUtils {
             LOG.error("Call getRecordInfo method with invalid input parameters<" + line + ", " + separator + ", " + validFieldNum);
             return null;
         }
-        String[] info = line.split(separator);
+        //TODO we need fixed this, not all separator need \\, we use | that need it
+        String[] info = line.split("\\" + separator);
         if (info.length != validFieldNum) {
+            LOG.error("info.length = " + info.length + " required:" + validFieldNum + " for line:" + line);
             return null;
         }
         return info;

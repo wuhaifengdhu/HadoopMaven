@@ -36,7 +36,6 @@ hadoop jar ${D_HOME}/lib/${JAR_NAME} com.rainyday.ccf.feature.mapreduce.MapReduc
         -Doutput.path=${OUTPUT_PATH} \
         -Donline.folder.name=${ONLINE_FOLDER_NAME} \
         -Doffline.folder.name=${OFFLINE_FOLDER_NAME} \
-        -Dmapreduce.input.fileinputformat.input.dir.recursive=true \
         -Dmapred.job.queue.name=risk_platform
 
 if [ $? == 0 ]; then

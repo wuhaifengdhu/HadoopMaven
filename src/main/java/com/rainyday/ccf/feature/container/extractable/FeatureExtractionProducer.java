@@ -52,19 +52,18 @@ public class FeatureExtractionProducer {
             return null;
         }
     }
-    /*
 
     public static Computable getComputableByFeatureType(FeatureType type) {
         if(FeatureType.USER_BEHAVIOUR.equals(type)){
-            return new UserBehaviourExtractable();
+            return new UserBehaviourExtractable(null);
         } else if(FeatureType.MERCHANT_BEHAVIOUR.equals(type)){
-            return new MerchantBehaviourExtractable();
+            return new MerchantBehaviourExtractable(null);
         } else if(FeatureType.COUPON_TENDENCY.equals(type)){
-            return new CouponTendencyExtractable();
+            return new CouponTendencyExtractable(null);
         } else {
             //TODO more extractable need added, if more enum being added.
             LOG.error("Invalid feature type has no extractable! current type = "  + CcfUtils.getNoNullString(type));
             return null;
         }
-    }*/
+    }
 }

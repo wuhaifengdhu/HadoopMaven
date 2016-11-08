@@ -110,15 +110,17 @@ public class MerchantBehaviourExtractable implements Extractable, Computable{
     @Override
     public void add(String line) {
         String[] info = CcfUtils.getRecordInfo(line, CcfConstants.COLUMN_SEPARATOR, 6);
-        this.recordTimes += CcfUtils.getIntValue(info[0]);
-        this.clickTimes += CcfUtils.getIntValue(info[1]);
-        this.collectionTimes += CcfUtils.getIntValue(info[2]);
-        this.usedWithin15DaysTimes += CcfUtils.getIntValue(info[3]);
-        this.usedOutOf15DaysTimes += CcfUtils.getIntValue(info[4]);
-        float rate = CcfUtils.getFloatValue(info[5]);
-        if(rate >= 0){
-            this.validDiscountRateRecordsNum += 1;
-            this.averageDiscountRate = (this.averageDiscountRate * (this.validDiscountRateRecordsNum - 1) + rate)/ this.validDiscountRateRecordsNum;
+        if(null != info){
+            this.recordTimes += CcfUtils.getIntValue(info[0]);
+            this.clickTimes += CcfUtils.getIntValue(info[1]);
+            this.collectionTimes += CcfUtils.getIntValue(info[2]);
+            this.usedWithin15DaysTimes += CcfUtils.getIntValue(info[3]);
+            this.usedOutOf15DaysTimes += CcfUtils.getIntValue(info[4]);
+            float rate = CcfUtils.getFloatValue(info[5]);
+            if(rate >= 0){
+                this.validDiscountRateRecordsNum += 1;
+                this.averageDiscountRate = (this.averageDiscountRate * (this.validDiscountRateRecordsNum - 1) + rate)/ this.validDiscountRateRecordsNum;
+            }
         }
     }
 

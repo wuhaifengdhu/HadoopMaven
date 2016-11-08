@@ -40,29 +40,138 @@ public class MapReducerFeatureExtractionWorker {
     private static final Logger LOG = LoggerFactory.getLogger(MapReducerFeatureExtractionWorker.class);
 
     public static void main(String[] args) throws Exception {
-         // check input parameters
+        // check input parameters
         Configuration conf = new Configuration();
         new GenericOptionsParser(conf, args);
         Path inputPath = new Path(conf.get(CcfConstants.INPUT_PATH));
         Path outputPath = new Path(conf.get(CcfConstants.OUTPUT_PATH));
-        if(! inputOutputPathSetup(conf, inputPath, outputPath)){
+        if (!inputOutputPathSetup(conf, inputPath, outputPath)) {
             LOG.error("Check input path output path failed!");
             return;
         }
-        
+        String lineSeparator = conf.get(CcfConstants.LINE_SEPARATOR_KEY, CcfConstants.DEFAULT_LINE_SEPARATOR);
+        String onlineFolderName = conf.get(CcfConstants.ONLINE_FOLDER_NAME_PARA, CcfConstants
+                .DEFAULT_ONLINE_FOLDER_NAME);
+        String offlineFolderName = conf.get(CcfConstants.OFFLINE_FOLDER_NAME_PARA,
+                CcfConstants.DEFAULT_OFFLINE_FOLDER_NAME);
+        LOG.debug("lineSeparator=" + lineSeparator + ";onlineFolderName=" + onlineFolderName + ";"
+                + "offlineFolderName=" + offlineFolderName);
+
         //Running pre-partition job
         Path interOuputPath = new Path(outputPath, "interOutput");
-        runPrePartitionMR(inputPath, interOuputPath);
-        
+        runPrePartitionMR(inputPath, interOuputPath, lineSeparator, onlineFolderName, offlineFolderName);
+
         //Running feature extraction job for each feature type
         for(FeatureType type : FeatureType.values()){
-            runFeatureExtractionMR(type, new Path(interOuputPath, type.toString()), outputPath);
+            runFeatureExtractionMR(type, new Path(interOuputPath, type.toString()), new Path(outputPath, type.toString()));
+        }
+    }
+
+    private static boolean inputOutputPathSetup(Configuration conf, Path inputPath, Path outputPath) throws IOException {
+        FileSystem fs = FileSystem.get(conf);
+        if (null == inputPath || null == outputPath) {
+            LOG.error("Invalid input output path <" + CcfUtils.getNoNullString(inputPath) + ","
+                    + CcfUtils.getNoNullString(outputPath) + ">");
+            return false;
+        }
+        if (!fs.exists(inputPath)) {
+            LOG.error("Input path not exist! inputPath = " + CcfUtils.getNoNullString(inputPath));
+            return false;
+        }
+        if (fs.exists(outputPath)) {
+            fs.delete(outputPath, true);
+        }
+        return true;
+    }
+
+    public static void runPrePartitionMR(Path inputPath, Path outputPath, String lineSeparator, String
+            onlineFolderName, String offlineFolderName ) throws IOException,
+            InterruptedException,
+            ClassNotFoundException {
+        long startTime = System.currentTimeMillis();
+
+        // check input parameters
+        Configuration conf = new Configuration();
+        if (!inputOutputPathSetup(conf, inputPath, outputPath)) {
+            LOG.error("Check input path output path failed!");
+            return;
         }
 
+        // Set configure variable
+        conf.set(CcfConstants.LINE_SEPARATOR_KEY, lineSeparator);
+        conf.set(CcfConstants.ONLINE_FOLDER_NAME_PARA, onlineFolderName);
+        conf.set(CcfConstants.OFFLINE_FOLDER_NAME_PARA, offlineFolderName);
+
+        // Setting job information
+        Job job = Job.getInstance(conf, "MapReducerFeatureExtractionWorker");
+        job.setJarByClass(MapReducerFeatureExtractionWorker.class);
+        job.setMapperClass(MapReducerFeatureExtractionWorker.PrePartitionMapper.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Text.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+
+        job.setInputFormatClass(TextInputFormat.class);
+        FileInputFormat.addInputPath(job, inputPath);
+        FileInputFormat.setInputDirRecursive(job, true);
+        job.setOutputFormatClass(FeatureOutputFormat.class);
+        FileOutputFormat.setOutputPath(job, outputPath);
+
+        int code = job.waitForCompletion(true) ? 0 : 1;
+        if (code != 0) {
+            LOG.error(CcfConstants.LOG_PREFIX + "MapReducerFeatureExtractionWorker job running failed!");
+            return;
+        }
+        LOG.info("MapReducerFeatureExtractionWorker Job running succeeded! Total time: {}s.",
+                (System.currentTimeMillis() - startTime) / 1000);
+    }
+
+    public static void runFeatureExtractionMR(FeatureType type, Path inputPath, Path outputPath) throws IOException,
+            InterruptedException, ClassNotFoundException {
+        long startTime = System.currentTimeMillis();
+
+        // check input parameters
+        Configuration conf = new Configuration();
+        if (!inputOutputPathSetup(conf, inputPath, outputPath)) {
+            LOG.error("Check input path output path failed!");
+            return;
+        }
+        if (null == type) {
+            LOG.error("Input FeatureType is null");
+            return;
+        }
+
+        conf.set("mapreduce.output.textoutputformat.separator", CcfConstants.KEY_VALUE_SEPARATOR);
+        conf.set(CcfConstants.EXTRACTION_FEATURE_TYPE_PARA, type.toString());
+
+        // Setting job information
+        Job job = Job.getInstance(conf, "runFeatureExtractionMR on " + type.toString());
+        job.setJarByClass(MapReducerFeatureExtractionWorker.class);
+        job.setMapperClass(MapReducerFeatureExtractionWorker.FeatureExtractionMapper.class);
+        job.setReducerClass(MapReducerFeatureExtractionWorker.FeatureExtractionReducer.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Text.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+
+        job.setInputFormatClass(TextInputFormat.class);
+        FileInputFormat.addInputPath(job, inputPath);
+        FileInputFormat.setInputDirRecursive(job, true);
+        job.setOutputFormatClass(TextOutputFormat.class);
+        FileOutputFormat.setOutputPath(job, outputPath);
+        FileOutputFormat.setCompressOutput(job, false);
+
+        int code = job.waitForCompletion(true) ? 0 : 1;
+        if (code != 0) {
+            LOG.error(CcfConstants.LOG_PREFIX + "runFeatureExtractionMR job running failed!");
+            return;
+        }
+        LOG.info("runFeatureExtractionMR Job running succeeded! Total time: {}s.",
+                (System.currentTimeMillis() - startTime) / 1000);
     }
 
     enum RunningCount {
-        RECORD_FORMAT_ERROR, USE_COUPON_COUNT, NOT_USE_COUPON_COUNT, INPUT_PARAMETER_ERROR, MAP_WRITE_COUNT
+        KEY_VALUE_NULL, INPUT_PARAMETER_ERROR, MAP_WRITE_COUNT, ABSTRACT_DATA_NULL, INPUT_LINE_NULL
     }
 
     private static class PrePartitionMapper extends Mapper<LongWritable, Text, Text, Text> {
@@ -129,22 +238,28 @@ public class MapReducerFeatureExtractionWorker {
                 FeatureExtractionProducer producer = new FeatureExtractionProducer(abstractData);
                 while (producer.hasNext()) {
                     AbstractMap.SimpleEntry<String, String> kvPair = producer.next();
-                    if (null != kvPair && null != kvPair.getKey()) {
+                    if (null != kvPair && ! CcfUtils.isNullValue(kvPair.getKey()) && ! CcfUtils.isNullValue(kvPair
+                            .getValue())) {
                         outKey.set(kvPair.getKey());
                         outValue.set(kvPair.getValue());
                         context.write(outKey, outValue);
                         context.getCounter(RunningCount.MAP_WRITE_COUNT).increment(1L);
+                    } else {
+                        LOG.error("<" + CcfUtils.getNoNullString(kvPair.getKey()) + ", " + CcfUtils.getNoNullString
+                                (kvPair.getValue()) + "> is not valid.");
+                        context.getCounter(RunningCount.KEY_VALUE_NULL).increment(1L);
                     }
                 }
             } else {
                 LOG.error("abstract data is null");
+                context.getCounter(RunningCount.ABSTRACT_DATA_NULL).increment(1L);
             }
         }
 
         /**
          * Check the key variable is initialized or not, if not, it's not ready
          * to start map reduce job
-         * 
+         *
          * @return true if input parameter is valid, else false
          */
         private boolean isValidMapReduceInputParameters() {
@@ -169,98 +284,6 @@ public class MapReducerFeatureExtractionWorker {
         }
     }
 
-    private static boolean inputOutputPathSetup(Configuration conf, Path inputPath, Path outputPath) throws IOException {
-        FileSystem fs = FileSystem.get(conf);
-        if (null != inputPath || null != outputPath) {
-            LOG.error("Invalid input output path <" + "," + CcfUtils.getNoNullString(inputPath) + ","
-                    + CcfUtils.getNoNullString(outputPath) + ">");
-            return false;
-        }
-        if (!fs.exists(inputPath)) {
-            LOG.error("Input path not exist! inputPath = " + CcfUtils.getNoNullString(inputPath));
-            return false;
-        }
-        if (fs.exists(outputPath)) {
-            fs.delete(outputPath, true);
-        }
-        return true;
-    }
-
-    public static void runPrePartitionMR(Path inputPath, Path outputPath) throws IOException, InterruptedException,
-            ClassNotFoundException {
-        long startTime = System.currentTimeMillis();
-
-        // check input parameters
-        Configuration conf = new Configuration();
-        if(! inputOutputPathSetup(conf, inputPath, outputPath)){
-            LOG.error("Check input path output path failed!");
-            return;
-        }
-
-        // Setting job information
-        Job job = Job.getInstance(conf, "MapReducerFeatureExtractionWorker");
-        job.setJarByClass(MapReducerFeatureExtractionWorker.class);
-        job.setMapperClass(MapReducerFeatureExtractionWorker.PrePartitionMapper.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        
-        job.setInputFormatClass(TextInputFormat.class);
-        FileInputFormat.addInputPath(job, inputPath);
-        job.setOutputFormatClass(FeatureOutputFormat.class);
-        FileOutputFormat.setOutputPath(job, outputPath);
-
-        int code = job.waitForCompletion(true) ? 0 : 1;
-        if (code != 0) {
-            LOG.error(CcfConstants.LOG_PREFIX + "MapReducerFeatureExtractionWorker job running failed!");
-            return;
-        }
-        LOG.info("MapReducerFeatureExtractionWorker Job running succeeded! Total time: {}s.",
-                (System.currentTimeMillis() - startTime) / 1000);
-    }
-
-    public static void runFeatureExtractionMR(FeatureType type, Path inputPath, Path outputPath) throws IOException,
-            InterruptedException, ClassNotFoundException {
-        long startTime = System.currentTimeMillis();
-
-        // check input parameters
-        Configuration conf = new Configuration();
-        if(! inputOutputPathSetup(conf, inputPath, outputPath)){
-            LOG.error("Check input path output path failed!");
-            return;
-        }
-        if(null == type){
-            LOG.error("Input FeatureType is null");
-            return;
-        }
-
-        conf.set("mapreduce.output.textoutputformat.separator", CcfConstants.KEY_VALUE_SEPARATOR);
-        conf.set(CcfConstants.EXTRACTION_FEATURE_TYPE_PARA, type.toString());
-
-        // Setting job information
-        Job job = Job.getInstance(conf, "runFeatureExtractionMR on " + type.toString());
-        job.setJarByClass(MapReducerFeatureExtractionWorker.class);
-        job.setMapperClass(MapReducerFeatureExtractionWorker.FeatureExtractionMapper.class);
-        job.setReducerClass(MapReducerFeatureExtractionWorker.FeatureExtractionReducer.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        job.setInputFormatClass(TextInputFormat.class);
-        FileInputFormat.addInputPath(job, inputPath);
-        job.setOutputFormatClass(TextOutputFormat.class);
-        FileOutputFormat.setOutputPath(job, outputPath);
-
-        int code = job.waitForCompletion(true) ? 0 : 1;
-        if (code != 0) {
-            LOG.error(CcfConstants.LOG_PREFIX + "runFeatureExtractionMR job running failed!");
-            return;
-        }
-        LOG.info("runFeatureExtractionMR Job running succeeded! Total time: {}s.",
-                (System.currentTimeMillis() - startTime) / 1000);
-    }
-
     private static class FeatureExtractionMapper extends Mapper<LongWritable, Text, Text, Text> {
         private static Text outKey = new Text();
         private static Text outValue = new Text();
@@ -273,6 +296,9 @@ public class MapReducerFeatureExtractionWorker {
                 outKey.set(info[0]);
                 outValue.set(info[1]);
                 context.write(outKey, outValue);
+            } else {
+                LOG.error("FeatureExtractionMapper map line is invalid:" + CcfUtils.getNoNullString(line));
+                context.getCounter(RunningCount.INPUT_LINE_NULL).increment(1L);
             }
         }
     }
@@ -287,8 +313,7 @@ public class MapReducerFeatureExtractionWorker {
             String type = context.getConfiguration().get(CcfConstants.EXTRACTION_FEATURE_TYPE_PARA);
             FeatureType featureType = CcfUtils.getFeatureTypeFromString(type);
             if (null != featureType) {
-                // computable =
-                // FeatureExtractionProducer.getComputableByFeatureType(featureType);
+                computable = FeatureExtractionProducer.getComputableByFeatureType(featureType);
             }
         }
 
