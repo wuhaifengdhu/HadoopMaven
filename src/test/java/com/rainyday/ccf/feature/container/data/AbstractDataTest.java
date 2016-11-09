@@ -1,6 +1,7 @@
 package com.rainyday.ccf.feature.container.data;
 
 import com.rainyday.ccf.feature.util.CcfConstants;
+import com.rainyday.ccf.feature.util.CcfUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +11,12 @@ import org.slf4j.LoggerFactory;
 public class AbstractDataTest {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDataTest.class);
     public static void main(String[] args) throws Exception {
-        System.out.println(getXTypeRate("0.3"));
-        System.out.println(getXYTypeRate("250:50"));
+//        System.out.println(getXTypeRate("0.3"));
+//        System.out.println(getXYTypeRate("250:50"));
+        System.out.println(getDiscountRate("250:50"));
+        System.out.println(getDiscountRate("0.3"));
+        System.out.println(getDiscountRate("fixed"));
+        System.out.println(AbstractData.isFixedDiscountRateFromString("fixed"));
     }
 
     private static float getXYTypeRate(String rateString){
@@ -40,5 +45,23 @@ public class AbstractDataTest {
             // Invalid format input, return 0
             return 0;
         }
+    }
+
+    private static float getDiscountRate(String discountStr){
+        return getDiscountRateFromString(discountStr);
+    }
+
+    public static float getDiscountRateFromString(String discountStr){
+        if(CcfUtils.isNullValue(discountStr)){
+            return 0;
+        }
+        if(AbstractData.isFixedDiscountRateFromString(discountStr)){
+            return 0;
+        }
+        //TODO Maybe we can extract a feature for this type ratio, the same as fixed rate type
+        if(discountStr.contains(CcfConstants.RATE_SEPARATOR)){
+            return getXYTypeRate(discountStr);
+        }
+        return getXTypeRate(discountStr);
     }
 }

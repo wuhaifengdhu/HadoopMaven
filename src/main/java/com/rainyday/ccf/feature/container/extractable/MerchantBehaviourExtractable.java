@@ -135,6 +135,4 @@ public class MerchantBehaviourExtractable implements Extractable, Computable{
                 .append(this.averageDiscountRate);
         return builder.toString();
     }
-    
-    
 }
