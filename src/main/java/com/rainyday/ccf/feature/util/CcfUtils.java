@@ -54,6 +54,19 @@ public final class CcfUtils {
         return dateDiff(received, used) <= 15;
     }
 
+    public static boolean couponUsedWithinDays(String receivedDate, String usedDate, int days){
+        if(CcfUtils.isNullValue(receivedDate) || CcfUtils.isNullValue(usedDate)){
+            return false;
+        }
+        try {
+            Date received = dateFormat.parse(receivedDate);
+            Date used = dateFormat.parse(usedDate);
+            return dateDiff(received, used) <= days;
+        } catch (ParseException ignore) {
+        }
+        return false;
+    }
+
     public static boolean isNullValue(Object value) {
         return null == value || CcfConstants.NULL_VALUE.equals(value.toString());
     }

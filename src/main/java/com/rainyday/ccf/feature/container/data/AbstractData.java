@@ -85,10 +85,14 @@ public abstract class AbstractData implements Buildable{
      */
 
     public float getDiscountRate(){
+        return getDiscountRateFromString(this.discountStr);
+    }
+
+    public static float getDiscountRateFromString(String discountStr){
         if(CcfUtils.isNullValue(discountStr)){
             return 0;
         }
-        if(isFixedDiscountRate()){
+        if(isFixedDiscountRateFromString(discountStr)){
             return 0;
         }
         //TODO Maybe we can extract a feature for this type ratio, the same as fixed rate type
@@ -98,7 +102,7 @@ public abstract class AbstractData implements Buildable{
         return getXTypeRate(discountStr);
     }
 
-    private float getXYTypeRate(String rateString){
+    private static float getXYTypeRate(String rateString){
         float rate = 0;
         String[] xy = rateString.split(CcfConstants.RATE_SEPARATOR);
         if(xy.length != 2){
@@ -116,7 +120,7 @@ public abstract class AbstractData implements Buildable{
         return rate;
     }
 
-    private float getXTypeRate(String rateString){
+    private static float getXTypeRate(String rateString){
         try{
             float x = Float.valueOf(rateString);
             return x;
@@ -127,6 +131,10 @@ public abstract class AbstractData implements Buildable{
     }
 
     public boolean isFixedDiscountRate(){
+        return isFixedDiscountRateFromString(this.discountStr);
+    }
+
+    public static boolean isFixedDiscountRateFromString(String discountStr){
         if(not(CcfUtils.isNullValue(discountStr)) && CcfConstants.FIXED_DISCOUNT.equalsIgnoreCase(discountStr)){
             return true;
         }
@@ -247,7 +255,7 @@ public abstract class AbstractData implements Buildable{
         return isOfflineType();
     }
 
-    boolean not(boolean value){
+    public static boolean not(boolean value){
         return ! value;
     }
 

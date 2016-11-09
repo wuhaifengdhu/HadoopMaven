@@ -10,11 +10,12 @@
 # --------------------------------------------------------------------------------------------------------------
 # Environment variable
 # --------------------------------------------------------------------------------------------------------------
-
+source common_header.sh
 # --------------------------------------------------------------------------------------------------------------
 # Configuration
 # --------------------------------------------------------------------------------------------------------------
-JOB_QUEUE="risk_platform"
+TRAINING_DATA_PATH="CCF/ccf_offline_stage1_test_revised.csv"
+FEATURE_FOLDER="ccf/training/prediction"
 # --------------------------------------------------------------------------------------------------------------
 # Functions
 # --------------------------------------------------------------------------------------------------------------
@@ -22,14 +23,8 @@ JOB_QUEUE="risk_platform"
 # --------------------------------------------------------------------------------------------------------------
 # Shell flow
 # --------------------------------------------------------------------------------------------------------------
-BASH_HOME=$(cd `dirname $0`; pwd)
-echo "BASH HOME is ${BASH_HOME}"
-D_HOME=${BASH_HOME%/*}
-echo "Directory HOME is ${D_HOME}"
-
-CLASSPATH=`find ${D_HOME}/lib -name "*.jar" | xargs | sed 's/ /:/g'`
-LIBJARS=`find ${D_HOME}/lib -name "*.jar" | xargs | sed 's/ /,/g'`
-
-export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$CLASSPATH:${D_HOME}/conf
-
-JAR_NAME="bigdata-1.0-SNAPSHOT.jar"
+pig  -param JAR="${D_HOME}/lib/${JAR_NAME}"  \
+     -param HADOOP_QUEUE="${JOB_QUEUE}"        \
+     -param SOURCE="${TRAINING_DATA_PATH}"   \
+     -param OUTPUT="${FEATURE_FOLDER}"        \
+     generate_prediction_features.pig

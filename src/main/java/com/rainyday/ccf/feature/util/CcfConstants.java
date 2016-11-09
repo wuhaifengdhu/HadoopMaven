@@ -34,4 +34,5 @@ public interface CcfConstants {
     public static final String OFFLINE_FOLDER_NAME_PARA = "offline.folder.name";
 
     public static final String EXTRACTION_FEATURE_TYPE_PARA = "extraction.feature.type";
+    public static final int DAYS_LIMIT = 15;
 }
