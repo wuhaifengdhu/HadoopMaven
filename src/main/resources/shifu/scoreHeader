@@ -1,1 +1,1 @@
-score::target,score::model1_nn,score::model2_nn,score::model3_nn,score::model4_nn,score::model5_nn,score::mean,score::max,score::min,score::stddev,score::User_id,score::Merchant_id,score::Coupon_id
+score::target,score::model1_nn,score::model2_nn,score::model3_nn,score::model4_nn,score::model5_nn,score::mean,score::max,score::min,score::stddev,score::User_id,score::Merchant_id,score::Coupon_id,score::Date_received

@@ -14,8 +14,8 @@ source common_header.sh
 # --------------------------------------------------------------------------------------------------------------
 # Configuration
 # --------------------------------------------------------------------------------------------------------------
-PIG_RESULT="CCF/ccf_offline_stage1_test_revised.csv"
-FINAL_RESULT="ccf/training/prediction"
+MODEL_SCORE="CCF/ccf_offline_stage1_test_revised.csv"
+MODEL_RESULT="ccf/model/result/prediction"
 # --------------------------------------------------------------------------------------------------------------
 # Functions
 # --------------------------------------------------------------------------------------------------------------
@@ -25,6 +25,6 @@ FINAL_RESULT="ccf/training/prediction"
 # --------------------------------------------------------------------------------------------------------------
 pig  -param JAR="${D_HOME}/lib/${JAR_NAME}"  \
      -param HADOOP_QUEUE="${JOB_QUEUE}"        \
-     -param SOURCE="${PIG_RESULT}"   \
-     -param OUTPUT="${FINAL_RESULT}"        \
+     -param SOURCE="${MODEL_SCORE}"   \
+     -param OUTPUT="${MODEL_RESULT}"        \
      generate_result.pig
