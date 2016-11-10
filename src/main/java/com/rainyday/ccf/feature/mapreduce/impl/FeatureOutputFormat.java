@@ -58,8 +58,10 @@ public class FeatureOutputFormat<K,V> extends FileOutputFormat<K, V> {
 
         @Override
         public void write(K key, V value) throws IOException {
-            boolean nullKey = key == null || key instanceof NullWritable || CcfUtils.isNullValue(key.toString());
-            boolean nullValue = value == null || value instanceof NullWritable || CcfUtils.isNullValue(value.toString());
+            boolean nullKey = CcfUtils.isNullValue(key)|| key instanceof NullWritable || CcfUtils.isNullValue(key
+                    .toString());
+            boolean nullValue = CcfUtils.isNullValue(value) || value instanceof NullWritable || CcfUtils.isNullValue
+                    (value.toString());
             // Either null key or null value regarded as invalid information
             if (nullKey || nullValue) {
                 return;

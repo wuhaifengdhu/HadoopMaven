@@ -16,7 +16,7 @@
 
 
 raw = LOAD '$SOURCE' USING PigStorage(',', '-schema');
-raw = FOREACH raw GENERATE (int)score::User_id,(int)score::Merchant_id,(int)score::Coupon_id, ((float)score::mean)
+raw = FOREACH raw GENERATE (int)score::User_id,(int)score::Coupon_id, score::Date_received, ((float)score::mean)
 /100);
 
 STORE raw INTO '$OUPUT' USING PigStorage(',', '-schema');

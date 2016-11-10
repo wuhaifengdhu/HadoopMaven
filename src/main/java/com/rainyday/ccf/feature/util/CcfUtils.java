@@ -68,7 +68,8 @@ public final class CcfUtils {
     }
 
     public static boolean isNullValue(Object value) {
-        return null == value || CcfConstants.NULL_VALUE.equals(value.toString());
+        return null == value || CcfConstants.NULL_VALUE.equals(value.toString()) || CcfConstants.EMPTY_STRING.equals
+                (value.toString());
     }
 
     public static int getIntValue(String value) {

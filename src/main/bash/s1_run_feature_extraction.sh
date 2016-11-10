@@ -17,7 +17,7 @@ source common_header.sh
 
 # For an input folder, online data should in subfolder online data, offline data should in offline data
 INPUT_PATH="CCF/test"
-OUTPUT_PATH="ccf/featureExtraction"
+OUTPUT_PATH="ccfNew/featureExtraction"
 # Two Option: online, offline
 ONLINE_FOLDER_NAME="online"
 OFFLINE_FOLDER_NAME="offline"
